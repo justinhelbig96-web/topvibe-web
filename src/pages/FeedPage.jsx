@@ -25,12 +25,15 @@ export default function FeedPage() {
   const [stats, setStats] = useState({ fireCount: 0, skipCount: 0 });
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [voted, setVoted] = useState(null); // 'fire' | 'skip' | null
   const audioRef = useRef(null);
   const dragStartX = useRef(0);
   const cardRef = useRef(null);
+  const loadSessionRef = useRef(0); // incremented each time loadPreview is called — cancels stale fetches
+  const hasInteractedRef = useRef(false); // track whether user has clicked anything
 
   useEffect(() => { loadTracks(); }, [genre]);
 
@@ -80,20 +83,36 @@ export default function FeedPage() {
 
   const loadPreview = async (track) => {
     stopAudio();
-    let url = track.preview_url;
+    setPreviewUrl(null);
+    setPreviewLoading(true);
+    const session = ++loadSessionRef.current;
+
+    let url = track.preview_url || null;
+
+    // Many Spotify tracks have no preview_url anymore — fall back to iTunes
     if (!url) {
       const artist = track.artists?.[0]?.name || '';
       url = await fetchItunesPreview(artist, track.name);
     }
-    setPreviewUrl(url);
-    if (url) setTimeout(() => playAudio(url), 300);
+
+    // Stale check — a newer track was loaded while we were fetching
+    if (session !== loadSessionRef.current) return;
+
+    setPreviewLoading(false);
+    setPreviewUrl(url || null);
+
+    if (url && hasInteractedRef.current) {
+      playAudio(url);
+    }
   };
 
   const playAudio = (url) => {
     if (!audioRef.current) return;
     audioRef.current.src = url;
     audioRef.current.volume = 0.7;
-    audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    audioRef.current.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => setIsPlaying(false));
   };
 
   const stopAudio = () => {
@@ -105,16 +124,18 @@ export default function FeedPage() {
   };
 
   const togglePlay = () => {
+    hasInteractedRef.current = true;
     if (!previewUrl || !audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      playAudio(previewUrl);
     }
   };
 
   const vote = useCallback(async (v) => {
+    hasInteractedRef.current = true;
     if (!tracks[index] || voted) return;
     setVoted(v);
     const track = tracks[index];
@@ -259,7 +280,12 @@ export default function FeedPage() {
             <p className="feed-info__album">{track.album?.name}</p>
           </div>
 
-          {previewUrl && (
+          {previewLoading ? (
+            <button className="play-btn-lg" disabled style={{ opacity: 0.5 }}>
+              <svg viewBox="0 0 24 24" fill="currentColor" style={{ animation: 'spin .8s linear infinite' }}><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z"/></svg>
+              Loading preview...
+            </button>
+          ) : previewUrl ? (
             <button className="play-btn-lg" onClick={togglePlay}>
               {isPlaying ? (
                 <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
@@ -268,6 +294,8 @@ export default function FeedPage() {
               )}
               {isPlaying ? 'Pause preview' : 'Play 30s preview'}
             </button>
+          ) : (
+            <p style={{ fontSize: '0.82rem', color: 'var(--text3)' }}>No preview available for this track</p>
           )}
 
           <div className="feed-info__stats">
