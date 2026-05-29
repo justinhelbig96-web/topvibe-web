@@ -5,6 +5,7 @@ import { saveVote, getTrackStats } from '../services/firestore';
 import SpotifyBadge from '../components/SpotifyBadge';
 
 const GENRES = [
+  { id: 'all', label: '🔥 All' },
   { id: 'pop', label: 'Pop' },
   { id: 'hip-hop', label: 'Hip-Hop' },
   { id: 'electronic', label: 'Electronic' },
@@ -15,12 +16,14 @@ const GENRES = [
   { id: 'k-pop', label: 'K-Pop' },
 ];
 
+const ALL_SEEDS = ['pop', 'hip-hop', 'electronic', 'rock', 'indie'];
+
 export default function FeedPage() {
   const { token, profile } = useAuthStore();
   const [tracks, setTracks] = useState([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [genre, setGenre] = useState('pop');
+  const [genre, setGenre] = useState('all');
   const [stats, setStats] = useState({ fireCount: 0, skipCount: 0 });
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,7 +47,8 @@ export default function FeedPage() {
     setLoading(true);
     setIndex(0);
     try {
-      const recs = await getRecommendations(token, [genre], 30);
+      const seeds = genre === 'all' ? ALL_SEEDS : [genre];
+      const recs = await getRecommendations(token, seeds, 30);
       setTracks(recs.filter(t => t.id));
     } catch {
       setTracks([]);
