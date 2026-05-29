@@ -151,8 +151,21 @@ export default function FeedPage() {
 
   if (!track) return (
     <div className="feed-empty">
-      <p>No more tracks. Try another genre!</p>
-      <button className="btn-green" onClick={loadTracks}>Reload</button>
+      <div className="feed-empty__icon">🎵</div>
+      <h2 className="feed-empty__title">No more tracks</h2>
+      <p className="feed-empty__sub">You've heard them all. Try another genre!</p>
+      <div className="feed-empty__genres">
+        {GENRES.map(g => (
+          <button
+            key={g.id}
+            className={`genre-tab ${genre === g.id ? 'active' : ''}`}
+            onClick={() => setGenre(g.id)}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+      <button className="btn-green" onClick={loadTracks}>Reload current genre</button>
     </div>
   );
 
