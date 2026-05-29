@@ -1,3 +1,6 @@
+/* ===================== FONTS ===================== */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
 /* ===================== RESET + BASE ===================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -60,33 +63,310 @@ img { display: block; }
 .nav-link:hover { color: var(--text2); }
 .nav-link.active { color: var(--green); }
 
-/* ===================== LOGIN PAGE ===================== */
-.login-page {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 50% 0%, #0d2d0d 0%, var(--bg) 60%);
+/* ===================== LANDING PAGE ===================== */
+
+/* Utility: dot-grid */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Utility: glow-text */
+.glow-text {
+  text-shadow: 0 0 40px rgba(29,185,84,0.6), 0 0 80px rgba(29,185,84,0.3);
+}
+
+.landing-page {
+  position: relative;
+  min-height: 100vh;
+  background: #080808;
+  color: var(--text);
+  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Glow orbs */
+.landing-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(150px);
+}
+.landing-orb--tl {
+  width: 600px; height: 600px;
+  top: -200px; left: -200px;
+  background: rgba(29,185,84,0.08);
+}
+.landing-orb--br {
+  width: 500px; height: 500px;
+  bottom: -200px; right: -200px;
+  background: rgba(29,185,84,0.06);
+}
+
+/* Top gradient line */
+.landing-topline {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(29,185,84,0.5), transparent);
+  z-index: 1;
+}
+
+/* Navbar */
+.landing-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(8,8,8,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.landing-nav__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.landing-nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--green);
+}
+.landing-nav__logo-img {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.landing-nav__cta {
+  background: transparent;
+  border: 1px solid rgba(29,185,84,0.4);
+  color: var(--green);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: background .2s, border-color .2s;
+  cursor: pointer;
+}
+.landing-nav__cta:hover {
+  background: rgba(29,185,84,0.1);
+  border-color: var(--green);
+}
+
+/* Hero section */
+.landing-hero {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+}
+
+.landing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(29,185,84,0.1);
+  border: 1px solid rgba(29,185,84,0.25);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--green);
+  margin-bottom: 32px;
+}
+.landing-badge__dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.landing-headline {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: clamp(3rem, 10vw, 7rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.landing-headline--accent {
+  color: var(--green);
+  display: block;
+}
+
+.landing-sub {
+  max-width: 520px;
+  color: var(--text2);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin: 24px auto 40px;
+}
+
+/* Main CTA button */
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--green);
+  color: #000;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 16px 36px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  letter-spacing: 0.02em;
+}
+.landing-cta:hover {
+  background: #1ed760;
+  transform: scale(1.02);
+  box-shadow: 0 0 40px rgba(29,185,84,0.45);
+}
+.landing-cta:active { transform: scale(0.98); }
+.landing-cta__icon { width: 22px; height: 22px; flex-shrink: 0; }
+
+/* Stats strip */
+.landing-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.landing-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.landing-stat__value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--green);
+}
+.landing-stat__label {
+  font-size: 0.75rem;
+  color: var(--text3);
+  text-align: center;
+}
+
+/* Features section */
+.landing-features {
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 80px 24px;
+  text-align: center;
+}
+.landing-features__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 48px;
+}
+.landing-features__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+.landing-feature-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 28px 20px;
+  transition: border-color .2s, transform .2s, background .2s;
+  text-align: left;
+}
+.landing-feature-card:hover {
+  border-color: rgba(29,185,84,0.3);
+  background: rgba(29,185,84,0.04);
+  transform: translateY(-3px);
+}
+.landing-feature-card__icon { font-size: 1.8rem; margin-bottom: 14px; }
+.landing-feature-card__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.landing-feature-card__desc { font-size: 0.88rem; color: var(--text2); line-height: 1.6; }
+
+/* Bottom CTA section */
+.landing-bottom-cta {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 80px 24px 100px;
+  overflow: hidden;
+}
+.landing-bottom-cta__glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 300px;
+  background: rgba(29,185,84,0.06);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.landing-bottom-cta__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 32px;
+}
+
+/* Footer */
+.landing-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   padding: 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.8rem;
+  color: var(--text3);
 }
-.login-card {
-  text-align: center; max-width: 360px; width: 100%;
-}
-.login-logo {
-  width: 120px; height: 120px; border-radius: 28px; margin: 0 auto 24px;
-  object-fit: cover; box-shadow: 0 0 60px rgba(29,185,84,0.3);
-}
-.login-title { font-size: 2.5rem; font-weight: 900; color: var(--green); margin-bottom: 12px; }
-.login-subtitle { color: var(--text2); line-height: 1.6; margin-bottom: 40px; font-size: 1rem; }
+.landing-footer a:hover { color: var(--text2); }
 
-.spotify-btn {
-  display: inline-flex; align-items: center; gap: 12px;
-  background: var(--green); color: #000; font-weight: 700; font-size: 1rem;
-  padding: 16px 32px; border-radius: 50px; text-decoration: none;
-  transition: background .2s, transform .1s; letter-spacing: 0.02em;
+/* Legal text under CTAs */
+.landing-legal {
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: var(--text3);
 }
-.spotify-btn:hover { background: #1ed760; transform: scale(1.02); }
-.spotify-icon { width: 24px; height: 24px; }
+.landing-legal a { color: var(--text2); text-decoration: underline; }
 
-.login-legal { margin-top: 24px; font-size: 0.78rem; color: var(--text3); }
-.login-legal a { color: var(--text2); text-decoration: underline; }
+
 
 /* ===================== LOADING / EMPTY ===================== */
 .feed-loading {
