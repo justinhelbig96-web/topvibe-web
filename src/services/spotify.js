@@ -24,6 +24,14 @@ export const getRecommendations = async (token, seedGenres = ['pop'], limit = 20
   return data.tracks || [];
 };
 
+export const searchTracksByGenre = async (token, genre, limit = 40) => {
+  const data = await get(
+    `/search?q=${encodeURIComponent('genre:' + genre)}&type=track&limit=${limit}&market=DE`,
+    token
+  );
+  return data.tracks?.items?.filter(t => t?.id) || [];
+};
+
 export const fetchItunesPreview = async (artistName, trackName) => {
   try {
     const q = `${artistName} ${trackName}`;

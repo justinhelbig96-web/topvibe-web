@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { getTopTracks, getRecommendations, fetchItunesPreview } from '../services/spotify';
+import { getTopTracks, searchTracksByGenre, fetchItunesPreview } from '../services/spotify';
 import { saveVote, getTrackStats } from '../services/firestore';
 import SpotifyBadge from '../components/SpotifyBadge';
 
@@ -15,8 +15,6 @@ const GENRES = [
   { id: 'latin', label: 'Latin' },
   { id: 'k-pop', label: 'K-Pop' },
 ];
-
-const ALL_SEEDS = ['pop', 'hip-hop', 'electronic', 'rock', 'indie'];
 
 export default function FeedPage() {
   const { token, profile } = useAuthStore();
@@ -47,10 +45,29 @@ export default function FeedPage() {
     setLoading(true);
     setIndex(0);
     try {
-      const seeds = genre === 'all' ? ALL_SEEDS : [genre];
-      const recs = await getRecommendations(token, seeds, 30);
-      setTracks(recs.filter(t => t.id));
-    } catch {
+      let result = [];
+      if (genre === 'all') {
+        // Use the user's own top tracks (Spotify recommendations API is deprecated for new apps)
+        const [short, medium] = await Promise.all([
+          getTopTracks(token, 'short_term', 30),
+          getTopTracks(token, 'medium_term', 30),
+        ]);
+        const seen = new Set();
+        const merged = [
+          ...(short.items || []),
+          ...(medium.items || []),
+        ].filter(t => {
+          if (!t?.id || seen.has(t.id)) return false;
+          seen.add(t.id);
+          return true;
+        });
+        result = merged.sort(() => Math.random() - 0.5);
+      } else {
+        result = await searchTracksByGenre(token, genre, 40);
+      }
+      setTracks(result.filter(t => t?.id));
+    } catch (e) {
+      console.error('loadTracks:', e);
       setTracks([]);
     }
     setLoading(false);
@@ -193,84 +210,102 @@ export default function FeedPage() {
         ))}
       </div>
 
-      {/* Card area */}
-      <div className="card-area">
-        {/* Next card shadow */}
-        {tracks[index + 1] && (
-          <div className="card card-next">
-            <img src={tracks[index + 1].album?.images?.[0]?.url} alt="" />
-          </div>
-        )}
-
-        {/* Main card */}
-        <div
-          ref={cardRef}
-          className={`card card-main ${voted === 'fire' ? 'voted-fire' : ''} ${voted === 'skip' ? 'voted-skip' : ''}`}
-          style={{
-            transform: `translateX(${dragX}px) rotate(${rotation}deg)`,
-            cursor: dragging ? 'grabbing' : 'grab',
-          }}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          <img
-            src={track.album?.images?.[0]?.url}
-            alt={track.name}
-            className="card-cover"
-            draggable={false}
-          />
-
-          {/* Fire/Skip overlays */}
-          {isFireSide && <div className="card-overlay fire-overlay">FIRE</div>}
-          {isSkipSide && <div className="card-overlay skip-overlay">SKIP</div>}
-
-          <div className="card-info">
-            <div className="card-track-info">
-              <h2 className="card-title">{track.name}</h2>
-              <p className="card-artist">{track.artists?.map(a => a.name).join(', ')}</p>
+      <div className="feed-main">
+        {/* Card */}
+        <div className="card-area">
+          {tracks[index + 1] && (
+            <div className="card card-next">
+              <img src={tracks[index + 1].album?.images?.[0]?.url} alt="" />
             </div>
+          )}
+          <div
+            ref={cardRef}
+            className={`card card-main ${voted === 'fire' ? 'voted-fire' : ''} ${voted === 'skip' ? 'voted-skip' : ''}`}
+            style={{
+              transform: `translateX(${dragX}px) rotate(${rotation}deg)`,
+              cursor: dragging ? 'grabbing' : 'grab',
+            }}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
+            onMouseLeave={onMouseUp}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            <img
+              src={track.album?.images?.[0]?.url}
+              alt={track.name}
+              className="card-cover"
+              draggable={false}
+            />
+            {isFireSide && <div className="card-overlay fire-overlay">FIRE 🔥</div>}
+            {isSkipSide && <div className="card-overlay skip-overlay">SKIP 💀</div>}
+            <div className="card-stats">
+              <span className="stat-fire">🔥 {stats.fireCount}</span>
+              <div className="stat-bar">
+                <div className="stat-bar-fill" style={{ width: firePercent + '%' }} />
+              </div>
+              <span className="stat-skip">💀 {stats.skipCount}</span>
+            </div>
+          </div>
+        </div>
 
-            {/* Play button */}
-            <button className="play-btn" onClick={(e) => { e.stopPropagation(); togglePlay(); }}>
+        {/* Info panel */}
+        <div className="feed-info">
+          <div>
+            <h2 className="feed-info__title">{track.name}</h2>
+            <p className="feed-info__artist">{track.artists?.map(a => a.name).join(', ')}</p>
+            <p className="feed-info__album">{track.album?.name}</p>
+          </div>
+
+          {previewUrl && (
+            <button className="play-btn-lg" onClick={togglePlay}>
               {isPlaying ? (
                 <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               ) : (
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               )}
+              {isPlaying ? 'Pause preview' : 'Play 30s preview'}
+            </button>
+          )}
+
+          <div className="feed-info__stats">
+            <div className="feed-stat-row">
+              <span>🔥 Fire votes</span>
+              <strong>{stats.fireCount}</strong>
+            </div>
+            <div className="feed-stat-row">
+              <span>💀 Skips</span>
+              <strong>{stats.skipCount}</strong>
+            </div>
+            <div className="feed-stat-bar">
+              <div className="feed-stat-bar__fill" style={{ width: firePercent + '%' }} />
+            </div>
+            {totalVotes > 0 && <p className="feed-stat-pct">{firePercent}% fire rate</p>}
+          </div>
+
+          <div className="vote-buttons">
+            <button className="vote-btn skip-btn" onClick={() => vote('skip')}>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              Skip
+            </button>
+            <button className="vote-btn fire-btn" onClick={() => vote('fire')}>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>
+              Fire 🔥
             </button>
           </div>
 
-          {/* Community stats */}
-          <div className="card-stats">
-            <span className="stat-fire">🔥 {stats.fireCount}</span>
-            <div className="stat-bar">
-              <div className="stat-bar-fill" style={{ width: firePercent + '%' }} />
-            </div>
-            <span className="stat-skip">💀 {stats.skipCount}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <SpotifyBadge uri={track.uri} />
+            <span className="swipe-hint" style={{ margin: 0 }}>← Skip · Fire →</span>
           </div>
 
-          <SpotifyBadge uri={track.uri} />
+          <p style={{ fontSize: '0.78rem', color: 'var(--text3)' }}>
+            Track {index + 1} of {tracks.length}
+          </p>
         </div>
       </div>
-
-      {/* Vote buttons */}
-      <div className="vote-buttons">
-        <button className="vote-btn skip-btn" onClick={() => vote('skip')}>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-          Skip
-        </button>
-        <button className="vote-btn fire-btn" onClick={() => vote('fire')}>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>
-          Fire
-        </button>
-      </div>
-
-      <p className="swipe-hint">Swipe right for Fire, left to Skip</p>
     </div>
   );
 }
