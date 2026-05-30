@@ -4,6 +4,40 @@ import { getTopTracks, searchTracksByGenre } from '../services/spotify';
 import { saveVote, getTrackStats } from '../services/firestore';
 import SpotifyBadge from '../components/SpotifyBadge';
 
+const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const fetchPreview = async (track) => {
+  if (track.preview_url) return track.preview_url;
+  const artist = track.artists?.[0]?.name || '';
+  const title = track.name;
+  const normTitle = norm(title);
+  const normArtist = norm(artist).slice(0, 6);
+  const tryStore = async (country) => {
+    try {
+      const r = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(artist + ' ' + title)}&entity=song&limit=10&country=${country}`);
+      const d = await r.json();
+      return d.results || [];
+    } catch { return []; }
+  };
+  const pick = (results) => {
+    // Must match title AND start of artist
+    const hit = results.find(r =>
+      r.previewUrl &&
+      norm(r.trackName) === normTitle &&
+      norm(r.artistName).includes(normArtist)
+    );
+    if (hit) return hit.previewUrl;
+    // Title-only fallback (looser)
+    const loose = results.find(r => r.previewUrl && norm(r.trackName) === normTitle);
+    return loose?.previewUrl || null;
+  };
+  let res = await tryStore('de');
+  let url = pick(res);
+  if (!url) { res = await tryStore('us'); url = pick(res); }
+  if (!url) { res = await tryStore('gb'); url = pick(res); }
+  return url || null;
+};
+
 const GENRES = [
   { id: 'all', label: '🔥 All' },
   { id: 'pop', label: 'Pop' },
@@ -81,11 +115,13 @@ export default function FeedPage() {
     setStats(s);
   };
 
-  const loadPreview = (track, autoStart = false) => {
+  const loadPreview = async (track, autoStart = false) => {
     stopAudio();
-    const url = track.preview_url || null;
+    setPreviewUrl(null);
+    const url = await fetchPreview(track);
     setPreviewUrl(url);
     if (url && (autoStart || hasInteractedRef.current)) playAudio(url);
+    return url;
   };
 
   const playAudio = (url) => {
@@ -112,20 +148,13 @@ export default function FeedPage() {
     if (!tracks[index] || voted) return;
     setVoted(v);
     const track = tracks[index];
-    const nextTrack = tracks[index + 1];
     stopAudio();
     if (profile?.id) await saveVote(profile.id, track, v, profile).catch(() => {});
     setTimeout(() => {
       setVoted(null);
       setIndex(i => i + 1);
-      // Start next preview immediately while still in gesture context
-      if (nextTrack?.preview_url) {
-        if (audioRef.current) {
-          audioRef.current.src = nextTrack.preview_url;
-          audioRef.current.volume = volumeRef.current;
-          audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-        }
-      }
+      // loadPreview (triggered by useEffect on index change) will autoplay
+      // because hasInteractedRef is now true
     }, 400);
   }, [tracks, index, voted, profile]);
 
