@@ -340,7 +340,17 @@ export default function FeedPage() {
               </div>
             </div>
           ) : (
-            <p style={{ fontSize: '0.82rem', color: 'var(--text3)' }}>No preview available for this track</p>
+            <div className="spotify-embed-wrap">
+              <iframe
+                title="Spotify player"
+                src={`https://open.spotify.com/embed/track/${track.id}?utm_source=generator&theme=0`}
+                width="100%"
+                height="80"
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+              />
+            </div>
           )}
 
           <div className="feed-info__stats">

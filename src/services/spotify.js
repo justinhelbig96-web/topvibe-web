@@ -33,25 +33,48 @@ export const searchTracksByGenre = async (token, genre, limit = 40) => {
 };
 
 export const fetchItunesPreview = async (artistName, trackName) => {
-  try {
-    const q = `${artistName} ${trackName}`;
-    const res = await fetch(
-      `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=10&country=de`
-    );
-    const data = await res.json();
-    const results = data.results || [];
-    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const normTrack = normalize(trackName);
-    const normArtist = normalize(artistName);
-    const exact = results.find(r =>
+  const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const normTrack = normalize(trackName);
+
+  const search = async (term, country = 'de') => {
+    try {
+      const res = await fetch(
+        `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=15&country=${country}`
+      );
+      const data = await res.json();
+      return data.results || [];
+    } catch { return []; }
+  };
+
+  const pickBest = (results) => {
+    // exact title + artist
+    const normArtist = normalize(artistName).slice(0, 5);
+    let hit = results.find(r =>
       normalize(r.trackName) === normTrack &&
-      normalize(r.artistName).includes(normArtist.slice(0, 6)) &&
+      normalize(r.artistName).includes(normArtist) &&
       r.previewUrl
     );
-    if (exact) return exact.previewUrl;
-    const titleMatch = results.find(r => normalize(r.trackName) === normTrack && r.previewUrl);
-    return titleMatch?.previewUrl || null;
-  } catch {
-    return null;
-  }
+    if (hit) return hit.previewUrl;
+    // exact title only
+    hit = results.find(r => normalize(r.trackName) === normTrack && r.previewUrl);
+    if (hit) return hit.previewUrl;
+    // title starts-with (handles subtitle variants)
+    hit = results.find(r => normalize(r.trackName).startsWith(normTrack.slice(0, Math.max(4, normTrack.length - 2))) && r.previewUrl);
+    return hit?.previewUrl || null;
+  };
+
+  // 1. Try artist + title in DE
+  let results = await search(`${artistName} ${trackName}`);
+  let url = pickBest(results);
+  if (url) return url;
+
+  // 2. Try title only in DE
+  results = await search(trackName);
+  url = pickBest(results);
+  if (url) return url;
+
+  // 3. Try in US store as fallback
+  results = await search(`${artistName} ${trackName}`, 'us');
+  url = pickBest(results);
+  return url || null;
 };
