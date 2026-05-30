@@ -764,3 +764,13 @@ img { display: block; }
 .admin-ban-btn--unban { background: #052e16; color: #4ade80; }
 .admin-ban-btn--unban:hover { background: #14532d; }
 .admin-empty { text-align: center; color: var(--text3); padding: 32px; }
+
+.admin-error {
+  padding: 32px 28px; color: #f87171; text-align: center;
+}
+.admin-error-hint {
+  margin-top: 12px; font-size: 13px; color: var(--text2); line-height: 1.7;
+}
+.admin-error-hint code {
+  background: var(--bg3); padding: 2px 6px; border-radius: 4px; color: #a78bfa;
+}

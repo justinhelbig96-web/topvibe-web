@@ -5,6 +5,7 @@ export default function AdminPanel({ onClose }) {
   const [users, setUsers] = useState([]);
   const [banned, setBanned] = useState(new Set());
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [actionId, setActionId] = useState(null);
 
@@ -14,10 +15,17 @@ export default function AdminPanel({ onClose }) {
 
   const load = async () => {
     setLoading(true);
-    const [all, bannedSet] = await Promise.all([getAllUsers(), getBannedUsers()]);
-    setUsers(all.sort((a, b) => (b.totalVotes || 0) - (a.totalVotes || 0)));
-    setBanned(bannedSet);
-    setLoading(false);
+    setError(null);
+    try {
+      const [all, bannedSet] = await Promise.all([getAllUsers(), getBannedUsers()]);
+      setUsers(all.sort((a, b) => (b.totalVotes || 0) - (a.totalVotes || 0)));
+      setBanned(bannedSet);
+    } catch (e) {
+      console.error('AdminPanel load error:', e);
+      setError('Firestore permission denied. Check your security rules.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleBan = async (userId) => {
@@ -59,6 +67,14 @@ export default function AdminPanel({ onClose }) {
 
         {loading ? (
           <div className="admin-loading"><div className="spinner" /></div>
+        ) : error ? (
+          <div className="admin-error">
+            <p>⚠️ {error}</p>
+            <p className="admin-error-hint">
+              Go to <strong>Firebase Console → Firestore → Rules</strong> and set:
+              <br /><code>allow read, write: if true;</code> (for testing)
+            </p>
+          </div>
         ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
