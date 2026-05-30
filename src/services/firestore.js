@@ -28,7 +28,7 @@ export const saveVote = async (userId, track, vote, userProfile) => {
   if (userProfile) {
     await setDoc(doc(db, 'userStats', userId), {
       userId,
-      displayName: userProfile.display_name || 'User',
+      displayName: (userProfile.display_name && userProfile.display_name !== 'Spotify User') ? userProfile.display_name : (userProfile.id || 'User'),
       avatar: userProfile.images?.[0]?.url || '',
       fireCount: increment(vote === 'fire' ? 1 : 0),
       skipCount: increment(vote === 'skip' ? 1 : 0),
@@ -113,7 +113,7 @@ export const registerUser = async (userProfile) => {
   if (!userProfile?.id) return;
   await setDoc(doc(db, 'userStats', userProfile.id), {
     userId: userProfile.id,
-    displayName: userProfile.display_name || 'User',
+    displayName: (userProfile.display_name && userProfile.display_name !== 'Spotify User') ? userProfile.display_name : (userProfile.id || 'User'),
     avatar: userProfile.images?.[0]?.url || '',
     email: userProfile.email || '',
     lastActive: serverTimestamp(),

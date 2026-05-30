@@ -7,7 +7,7 @@ import FeedPage from "./pages/FeedPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import Layout from "./components/Layout";
-import { getTopTracks } from "./services/spotify";
+import { getMyProfile, getTopTracks } from "./services/spotify";
 import { contributeUserTracks, isUserBanned, registerUser } from "./services/firestore";
 import "./styles/app.css";
 
@@ -29,6 +29,17 @@ function ProtectedRoute({ children }) {
   if (!valid) return <Navigate to="/" replace />;
   if (banned) return null;
   return children;
+}
+
+function ProfileRecovery() {
+  const { token, tokenExpiry, profile, setProfile } = useAuthStore();
+  useEffect(() => {
+    const valid = !!token && Date.now() < (tokenExpiry || 0);
+    if (valid && !profile?.id) {
+      getMyProfile(token).then(setProfile).catch(() => {});
+    }
+  }, [token, profile?.id]);
+  return null;
 }
 
 function TrackContributor() {
@@ -57,6 +68,7 @@ function TrackContributor() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ProfileRecovery />
       <TrackContributor />
       <Routes>
         <Route path="/" element={<LoginPage />} />
