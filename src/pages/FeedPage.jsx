@@ -307,18 +307,6 @@ export default function FeedPage() {
 }
 
 
-const GENRES = [
-  { id: 'all', label: '🔥 All' },
-  { id: 'pop', label: 'Pop' },
-  { id: 'hip-hop', label: 'Hip-Hop' },
-  { id: 'electronic', label: 'Electronic' },
-  { id: 'rock', label: 'Rock' },
-  { id: 'r-n-b', label: 'R&B' },
-  { id: 'indie', label: 'Indie' },
-  { id: 'latin', label: 'Latin' },
-  { id: 'k-pop', label: 'K-Pop' },
-];
-
 export default function FeedPage() {
   const { token, profile } = useAuthStore();
   const [tracks, setTracks] = useState([]);
