@@ -36,7 +36,7 @@ img { display: block; }
 
 /* ===================== LAYOUT ===================== */
 .app-layout { display: flex; flex-direction: column; min-height: 100vh; }
-.main-content { flex: 1; max-width: 960px; margin: 0 auto; width: 100%; padding: 88px 32px 48px; }
+.main-content { flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; padding: 88px 40px 48px; }
 
 /* ===================== NAVBAR ===================== */
 .navbar {
@@ -340,16 +340,16 @@ img { display: block; }
 .btn-green:hover { background: #1ed760; }
 
 /* ===================== FEED PAGE ===================== */
-.feed-page { padding-top: 16px; }
+.feed-page { padding-top: 8px; }
 
 .genre-tabs {
-  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 16px;
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 20px;
   scrollbar-width: none; -ms-overflow-style: none;
 }
 .genre-tabs::-webkit-scrollbar { display: none; }
 .genre-tab {
-  flex-shrink: 0; padding: 8px 16px; border-radius: 50px;
-  background: var(--bg3); color: var(--text2); font-size: 0.85rem; font-weight: 600;
+  flex-shrink: 0; padding: 9px 20px; border-radius: 50px;
+  background: var(--bg3); color: var(--text2); font-size: 0.9rem; font-weight: 600;
   transition: all .2s;
 }
 .genre-tab.active { background: var(--green); color: #000; }
@@ -357,83 +357,97 @@ img { display: block; }
 
 /* Feed 2-column desktop layout */
 .feed-main {
-  display: flex; flex-direction: column; gap: 24px; align-items: center;
-  margin-top: 8px;
+  display: flex; flex-direction: column; gap: 32px; align-items: center;
+  margin-top: 4px;
 }
-.feed-info {
-  display: flex; flex-direction: column; gap: 20px;
-  width: 100%; max-width: 400px;
-}
-.feed-info__title { font-size: 1.6rem; font-weight: 800; line-height: 1.2; color: var(--text); }
-.feed-info__artist { font-size: 1.05rem; color: var(--text2); margin-top: 6px; }
-.feed-info__album { font-size: 0.85rem; color: var(--text3); margin-top: 3px; }
-.play-btn-lg {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: rgba(29,185,84,0.1); border: 1px solid rgba(29,185,84,0.3);
-  color: var(--green); font-weight: 600; font-size: 0.9rem;
-  padding: 10px 22px; border-radius: 50px; cursor: pointer; transition: background .2s; width: fit-content;
-}
-.play-btn-lg:hover { background: rgba(29,185,84,0.2); }
-.play-btn-lg svg { width: 18px; height: 18px; fill: var(--green); }
-.feed-info__stats {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px 20px;
-}
-.feed-stat-row {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 0.9rem; color: var(--text2); margin-bottom: 6px;
-}
-.feed-stat-row strong { color: var(--text); font-weight: 700; }
-.feed-stat-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 10px; }
-.feed-stat-bar__fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .4s; }
-.feed-stat-pct { font-size: 0.78rem; color: var(--green); font-weight: 700; margin-top: 8px; }
-@media (min-width: 760px) {
-  .feed-main { flex-direction: row; align-items: flex-start; gap: 48px; }
+@media (min-width: 860px) {
+  .feed-main { flex-direction: row; align-items: flex-start; gap: 56px; }
   .feed-info { max-width: none; flex: 1; }
-  .card-area { width: 420px; height: 520px; max-width: 420px; flex-shrink: 0; margin: 0; }
+  .card-area { width: 500px; height: 600px; max-width: 500px; flex-shrink: 0; margin: 0; }
 }
 
 .card-area {
-  position: relative; height: 480px; width: 100%; max-width: 400px;
+  position: relative; height: 520px; width: 100%; max-width: 500px;
 }
 
+/* Info panel */
+.feed-info {
+  display: flex; flex-direction: column; gap: 28px;
+  width: 100%;
+}
+.feed-info__header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.feed-info__title { font-size: 2.2rem; font-weight: 900; line-height: 1.15; color: var(--text); letter-spacing: -0.02em; }
+.feed-info__artist { font-size: 1.15rem; color: var(--text2); margin-top: 8px; }
+.feed-info__album { font-size: 0.9rem; color: var(--text3); margin-top: 4px; }
+.feed-track-counter { font-size: 0.8rem; color: var(--text3); font-weight: 600; white-space: nowrap; padding-top: 6px; }
+
+/* Player */
+.feed-player {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px 20px;
+}
+.feed-play-btn {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--green); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s, transform .1s;
+}
+.feed-play-btn:hover { background: #1ed760; transform: scale(1.06); }
+.feed-play-btn:active { transform: scale(0.95); }
+.feed-play-btn svg { width: 24px; height: 24px; fill: #000; }
+.feed-player__right { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.feed-player__label { font-size: 0.82rem; color: var(--text3); font-weight: 600; }
+
+/* Stats card */
+.feed-stats-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px 24px;
+}
+.feed-stats-row {
+  display: flex; align-items: center; gap: 0;
+}
+.feed-stat {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.feed-stat__icon { font-size: 1.4rem; }
+.feed-stat__num { font-size: 1.8rem; font-weight: 900; color: var(--text); }
+.feed-stat__label { font-size: 0.75rem; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.feed-stat-divider { width: 1px; height: 48px; background: var(--border); margin: 0 8px; }
+.feed-stat-bar { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 16px; }
+.feed-stat-bar__fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .4s; }
+
 .card {
-  position: absolute; inset: 0; border-radius: 20px; overflow: hidden;
-  background: var(--bg2); box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  position: absolute; inset: 0; border-radius: 24px; overflow: hidden;
+  background: var(--bg2); box-shadow: 0 16px 60px rgba(0,0,0,0.6);
   user-select: none;
 }
 .card-next {
-  transform: scale(0.93) translateY(12px); z-index: 1;
+  transform: scale(0.93) translateY(14px); z-index: 1;
 }
-.card-next img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
+.card-next img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
 .card-main { z-index: 2; transition: box-shadow .2s; }
-.card-main:active { box-shadow: 0 12px 60px rgba(0,0,0,0.7); }
+.card-main:active { box-shadow: 0 20px 80px rgba(0,0,0,0.8); }
 
 .card-cover { width: 100%; height: 100%; object-fit: cover; }
 
 .card-overlay {
-  position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
-  font-size: 2rem; font-weight: 900; padding: 8px 20px; border-radius: 10px;
-  letter-spacing: 2px; pointer-events: none;
+  position: absolute; top: 28px; left: 50%; transform: translateX(-50%);
+  font-size: 2.2rem; font-weight: 900; padding: 10px 24px; border-radius: 12px;
+  letter-spacing: 3px; pointer-events: none; backdrop-filter: blur(4px);
 }
-.fire-overlay { color: var(--green); border: 3px solid var(--green); }
-.skip-overlay { color: #ef4444; border: 3px solid #ef4444; }
+.fire-overlay { color: var(--green); border: 3px solid var(--green); background: rgba(29,185,84,0.15); }
+.skip-overlay { color: #ef4444; border: 3px solid #ef4444; background: rgba(239,68,68,0.15); }
 
-.card-info {
-  position: absolute; bottom: 64px; left: 0; right: 0; padding: 20px;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
-  display: flex; justify-content: space-between; align-items: flex-end;
+.card-bottom-gradient {
+  position: absolute; bottom: 52px; left: 0; right: 0;
+  padding: 48px 20px 16px;
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%);
 }
-.card-title { font-size: 1.2rem; font-weight: 800; color: #fff; }
-.card-artist { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 4px; }
-
-.play-btn {
-  width: 48px; height: 48px; border-radius: 50%; background: var(--green);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  transition: background .2s, transform .1s;
-}
-.play-btn:hover { background: #1ed760; transform: scale(1.05); }
-.play-btn svg { width: 22px; height: 22px; color: #000; fill: #000; }
+.card-track-name { font-size: 1.15rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-track-artist { font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .card-stats {
   position: absolute; bottom: 16px; left: 16px; right: 16px;
@@ -463,59 +477,89 @@ img { display: block; }
 .spotify-badge svg { width: 16px; height: 16px; fill: var(--green); }
 
 .vote-buttons {
-  display: flex; gap: 24px; justify-content: center; margin-top: 24px;
+  display: flex; gap: 16px; justify-content: center;
 }
 .vote-btn {
-  display: flex; align-items: center; gap: 8px; padding: 14px 32px;
-  border-radius: 50px; font-size: 1rem; font-weight: 700; transition: transform .1s, opacity .2s;
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 0; border-radius: 16px; font-size: 1.1rem; font-weight: 800;
+  transition: transform .1s, opacity .2s; flex: 1; justify-content: center;
 }
 .vote-btn:active { transform: scale(0.95); }
-.vote-btn svg { width: 20px; height: 20px; }
+.vote-btn svg { width: 22px; height: 22px; }
 .fire-btn { background: var(--green); color: #000; }
 .fire-btn:hover { background: #1ed760; }
 .skip-btn { background: var(--bg3); color: #ef4444; border: 1px solid #ef4444; }
 .skip-btn:hover { background: rgba(239,68,68,0.1); }
 
-.swipe-hint { text-align: center; color: var(--text3); font-size: 0.8rem; margin-top: 12px; }
+.swipe-hint { text-align: center; color: var(--text3); font-size: 0.8rem; }
 
 /* ===================== LEADERBOARD ===================== */
-.leaderboard-page { padding-top: 16px; }
-.leaderboard-header { margin-bottom: 24px; }
-.leaderboard-header h1 { font-size: 1.8rem; font-weight: 900; }
-.leaderboard-header p { color: var(--text2); margin-top: 4px; font-size: 0.9rem; }
+.lb-page { padding-top: 8px; }
+.lb-hero { margin-bottom: 36px; }
+.lb-hero__title { font-size: 2.4rem; font-weight: 900; letter-spacing: -0.03em; }
+.lb-hero__sub { color: var(--text2); margin-top: 6px; font-size: 1rem; }
 
-.lb-list { display: flex; flex-direction: column; gap: 10px; }
-.lb-item {
-  display: flex; align-items: center; gap: 12px;
+/* Podium */
+.lb-podium {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  margin-bottom: 32px;
+}
+@media (max-width: 600px) { .lb-podium { grid-template-columns: 1fr; } }
+
+.lb-podium-card {
   background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 14px; padding: 12px; transition: border-color .2s;
+  border-radius: 20px; padding: 28px 20px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  transition: border-color .2s, transform .2s;
 }
-.lb-item:hover { border-color: #333; }
+.lb-podium-card:hover { border-color: #333; transform: translateY(-3px); }
+.lb-podium-card--1 { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.04); }
+.lb-podium-card--2 { border-color: rgba(192,192,192,0.25); }
+.lb-podium-card--3 { border-color: rgba(205,127,50,0.25); }
 
-.lb-rank { font-size: 1.1rem; font-weight: 800; min-width: 32px; text-align: center; color: var(--text3); }
-.rank-1, .rank-2, .rank-3 { font-size: 1.3rem; }
-
-.lb-cover { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-.lb-info { flex: 1; min-width: 0; }
-.lb-title { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lb-artist { color: var(--text2); font-size: 0.8rem; margin-top: 2px; }
-.lb-bar-wrap { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-.lb-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
-.lb-bar-fill { height: 100%; background: var(--green); border-radius: 2px; }
-.lb-pct { font-size: 0.72rem; color: var(--green); font-weight: 700; flex-shrink: 0; }
-
-.lb-counts { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; flex-shrink: 0; }
-.lb-fire { font-size: 0.8rem; font-weight: 700; color: var(--green); }
-.lb-skip { font-size: 0.8rem; font-weight: 700; color: #ef4444; }
-
-.lb-spotify-link {
-  display: flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(29,185,84,0.1); flex-shrink: 0; transition: background .2s;
+.lb-podium-medal { font-size: 2.2rem; line-height: 1; }
+.lb-podium-avatar {
+  width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--border); margin: 4px 0;
 }
-.lb-spotify-link:hover { background: rgba(29,185,84,0.25); }
-.lb-spotify-link svg { width: 18px; height: 18px; fill: var(--green); }
-.lb-empty { text-align: center; color: var(--text3); padding: 48px 0; }
+.lb-podium-card--1 .lb-podium-avatar { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+.lb-podium-avatar--fallback {
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+}
+.lb-podium-avatar--fallback svg { width: 36px; height: 36px; fill: var(--text3); }
+.lb-podium-name { font-weight: 800; font-size: 1rem; text-align: center; }
+.lb-podium-score { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 700; }
+.lb-podium-fire { color: var(--green); }
+.lb-podium-sep { color: var(--text3); }
+.lb-podium-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; }
+.lb-podium-bar-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+.lb-podium-total { font-size: 0.78rem; color: var(--text3); font-weight: 600; }
+
+/* Rest list */
+.lb-rest { display: flex; flex-direction: column; gap: 8px; }
+.lb-row {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 18px; transition: border-color .2s;
+}
+.lb-row:hover { border-color: #333; }
+.lb-row__rank { font-size: 0.9rem; font-weight: 800; color: var(--text3); min-width: 32px; }
+.lb-row__avatar {
+  width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.lb-row__avatar--fallback {
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+}
+.lb-row__avatar--fallback svg { width: 22px; height: 22px; fill: var(--text3); }
+.lb-row__info { flex: 1; min-width: 0; }
+.lb-row__name { font-weight: 700; font-size: 0.95rem; }
+.lb-row__bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; }
+.lb-row__bar-fill { height: 100%; background: var(--green); border-radius: 2px; }
+.lb-row__counts { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; flex-shrink: 0; }
+.lb-row__fire { font-size: 0.85rem; font-weight: 700; color: var(--green); }
+.lb-row__skip { font-size: 0.85rem; font-weight: 700; color: #ef4444; }
+.lb-row__pct { font-size: 0.85rem; font-weight: 800; color: var(--green); min-width: 40px; text-align: right; }
+.lb-empty { text-align: center; color: var(--text3); padding: 64px 0; font-size: 1rem; }
 
 /* ===================== TRACK LIST (shared) ===================== */
 .track-list { display: flex; flex-direction: column; gap: 6px; }
@@ -539,21 +583,14 @@ img { display: block; }
   .main-content { padding: 72px 16px 32px; }
   .navbar__inner { padding: 0 16px; }
   .nav-link { padding: 8px 10px; font-size: 0.82rem; }
+  .feed-info__title { font-size: 1.6rem; }
+  .feed-stat__num { font-size: 1.4rem; }
 }
 
 /* ===================== PLAYER ROW (feed) ===================== */
 .player-row {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
 }
-.autoplay-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--bg3); border: 1px solid var(--border);
-  color: var(--text2); font-size: 0.82rem; font-weight: 600;
-  padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: all .2s;
-}
-.autoplay-btn:hover { border-color: #444; color: var(--text); }
-.autoplay-btn.autoplay-on { background: rgba(29,185,84,0.15); border-color: var(--green); color: var(--green); }
-.autoplay-btn svg { width: 15px; height: 15px; fill: currentColor; }
 
 .spotify-embed-wrap {
   border-radius: 12px; overflow: hidden;
@@ -581,13 +618,6 @@ img { display: block; }
   width: 14px; height: 14px; border-radius: 50%;
   background: var(--green); border: none; cursor: pointer;
 }
-
-/* ===================== LEADERBOARD USER AVATAR ===================== */
-.lb-avatar { border-radius: 50%; }
-.lb-avatar-fallback {
-  background: var(--bg3); display: flex; align-items: center; justify-content: center;
-}
-.lb-avatar-fallback svg { width: 26px; height: 26px; fill: var(--text3); }
 
 /* ===================== PROFILE DESKTOP LAYOUT ===================== */
 .profile-page { padding-top: 16px; }
