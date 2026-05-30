@@ -692,3 +692,75 @@ img { display: block; }
   transition: background .2s; margin-top: 8px; width: 100%;
 }
 .logout-btn:hover { background: rgba(239,68,68,0.1); }
+
+/* ===================== ADMIN BUTTON ===================== */
+.admin-open-btn {
+  width: 100%; margin-top: 10px; padding: 11px 16px;
+  background: #1a1a2e; color: #a78bfa; border: 1px solid #4c1d95;
+  border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+}
+.admin-open-btn:hover { background: #2d1b69; }
+
+/* ===================== ADMIN PANEL ===================== */
+.admin-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.admin-panel {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; width: 100%; max-width: 860px;
+  max-height: 80vh; display: flex; flex-direction: column; overflow: hidden;
+}
+.admin-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 24px 28px 16px; border-bottom: 1px solid var(--border);
+}
+.admin-title { font-size: 1.4rem; font-weight: 800; color: #a78bfa; }
+.admin-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.admin-close {
+  background: none; color: var(--text2); font-size: 20px;
+  padding: 4px 8px; border-radius: 6px; transition: color 0.15s;
+}
+.admin-close:hover { color: var(--text); }
+.admin-search {
+  margin: 12px 28px; padding: 10px 16px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 14px; outline: none;
+}
+.admin-search:focus { border-color: #a78bfa; }
+.admin-loading { display: flex; justify-content: center; padding: 40px; }
+.admin-table-wrap { overflow-y: auto; flex: 1; padding: 0 28px 24px; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.admin-table th {
+  text-align: left; padding: 10px 12px; color: var(--text3);
+  font-weight: 600; font-size: 12px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border); position: sticky; top: 0;
+  background: var(--bg2);
+}
+.admin-table td { padding: 12px 12px; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
+.admin-row--banned td { opacity: 0.5; }
+.admin-user-cell { display: flex; align-items: center; gap: 10px; }
+.admin-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.admin-avatar-fallback {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+  color: var(--text3); font-size: 13px;
+}
+.admin-name { font-weight: 600; }
+.admin-badge {
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
+  border-radius: 999px; text-transform: uppercase;
+}
+.admin-badge--active { background: #052e16; color: #4ade80; }
+.admin-badge--banned { background: #450a0a; color: #f87171; }
+.admin-ban-btn {
+  font-size: 12px; font-weight: 700; padding: 5px 12px;
+  border-radius: 6px; cursor: pointer; transition: background 0.15s;
+}
+.admin-ban-btn--ban { background: #450a0a; color: #f87171; }
+.admin-ban-btn--ban:hover { background: #7f1d1d; }
+.admin-ban-btn--unban { background: #052e16; color: #4ade80; }
+.admin-ban-btn--unban:hover { background: #14532d; }
+.admin-empty { text-align: center; color: var(--text3); padding: 32px; }

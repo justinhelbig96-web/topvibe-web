@@ -5,6 +5,9 @@ export const SPOTIFY_SCOPES = [
   'user-read-email',
   'user-read-private',
   'user-library-read',
+  'playlist-read-private',
+  'playlist-modify-public',
+  'playlist-modify-private',
 ].join(' ');
 
 export const REDIRECT_URI = window.location.origin + '/callback';

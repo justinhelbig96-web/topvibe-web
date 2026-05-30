@@ -1,6 +1,6 @@
 import {
   collection, doc, setDoc, getDoc, getDocs,
-  query, orderBy, limit, increment, serverTimestamp,
+  query, orderBy, limit, increment, serverTimestamp, arrayUnion, deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -67,4 +67,67 @@ export const getUserLeaderboard = async (limitCount = 20) => {
   );
   const snap = await getDocs(q);
   return snap.docs.map(d => d.data());
+};
+
+// Shared track pool — every user contributes their top tracks
+export const contributeUserTracks = async (userId, tracks) => {
+  const ops = tracks.slice(0, 50).map(t => {
+    const trackData = {
+      id: t.id,
+      name: t.name,
+      uri: t.uri || '',
+      preview_url: t.preview_url || null,
+      duration_ms: t.duration_ms || 0,
+      artists: [{ name: t.artists?.[0]?.name || '' }],
+      album: { images: [{ url: t.album?.images?.[0]?.url || '' }] },
+    };
+    return setDoc(doc(db, 'sharedTracks', t.id), {
+      trackData,
+      addedBy: arrayUnion(userId),
+      addedAt: serverTimestamp(),
+    }, { merge: true });
+  });
+  await Promise.all(ops);
+  // Update trackCount in userStats
+  await setDoc(doc(db, 'userStats', userId), {
+    trackCount: tracks.slice(0, 50).length,
+  }, { merge: true });
+};
+
+export const getSharedTracks = async (limitCount = 200) => {
+  const q = query(
+    collection(db, 'sharedTracks'),
+    orderBy('addedAt', 'desc'),
+    limit(limitCount)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ ...d.data().trackData, addedBy: d.data().addedBy || [] }));
+};
+
+// ===================== ADMIN =====================
+export const ADMIN_EMAIL = 'justin.helbig96@icloud.com';
+
+export const getAllUsers = async () => {
+  const snap = await getDocs(collection(db, 'userStats'));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+export const banUser = async (userId) => {
+  await setDoc(doc(db, 'bannedUsers', userId), {
+    bannedAt: serverTimestamp(),
+  });
+};
+
+export const unbanUser = async (userId) => {
+  await deleteDoc(doc(db, 'bannedUsers', userId));
+};
+
+export const getBannedUsers = async () => {
+  const snap = await getDocs(collection(db, 'bannedUsers'));
+  return new Set(snap.docs.map(d => d.id));
+};
+
+export const isUserBanned = async (userId) => {
+  const snap = await getDoc(doc(db, 'bannedUsers', userId));
+  return snap.exists();
 };

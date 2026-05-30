@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { getMyProfile, getTopTracks, getTopArtists } from '../services/spotify';
-import { getUserVotes } from '../services/firestore';
+import { getUserVotes, ADMIN_EMAIL } from '../services/firestore';
 import { useNavigate } from 'react-router-dom';
+import AdminPanel from '../components/AdminPanel';
 
 function ChevronIcon({ open }) {
   return (
@@ -21,6 +22,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [showTopTracks, setShowTopTracks] = useState(true);
   const [showFireVotes, setShowFireVotes] = useState(true);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const isAdmin = profile?.email === ADMIN_EMAIL;
 
   useEffect(() => { loadData(); }, []);
 
@@ -90,8 +93,14 @@ export default function ProfilePage() {
             </div>
 
             <button className="logout-btn" onClick={handleLogout}>Logout</button>
+            {isAdmin && (
+              <button className="admin-open-btn" onClick={() => setShowAdmin(true)}>
+                🛡 Admin Panel
+              </button>
+            )}
           </div>
         </aside>
+        {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
 
         {/* Right content */}
         <div className="profile-content">

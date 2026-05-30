@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { getTopTracks, searchTracksByGenre } from '../services/spotify';
-import { saveVote, getTrackStats } from '../services/firestore';
+import { saveVote, getTrackStats, getSharedTracks, getUserVotes } from '../services/firestore';
 import SpotifyBadge from '../components/SpotifyBadge';
 
 const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -91,14 +91,26 @@ export default function FeedPage() {
     try {
       let result = [];
       if (genre === 'all') {
-        const [short, medium] = await Promise.all([
-          getTopTracks(token, 'short_term', 30),
-          getTopTracks(token, 'medium_term', 30),
+        // Load shared pool from all users, filter out own submissions and already-voted
+        const [shared, myVotes] = await Promise.all([
+          getSharedTracks(200),
+          profile?.id ? getUserVotes(profile.id).catch(() => []) : Promise.resolve([]),
         ]);
-        const seen = new Set();
-        result = [...(short.items || []), ...(medium.items || [])]
-          .filter(t => { if (!t?.id || seen.has(t.id)) return false; seen.add(t.id); return true; })
+        const votedIds = new Set(myVotes.map(v => v.trackData?.id).filter(Boolean));
+        result = shared
+          .filter(t => t?.id && !votedIds.has(t.id) && !(t.addedBy || []).includes(profile?.id))
           .sort(() => Math.random() - 0.5);
+        // Fallback: if pool is empty (no other users yet), use own tracks
+        if (result.length === 0) {
+          const [short, medium] = await Promise.all([
+            getTopTracks(token, 'short_term', 30),
+            getTopTracks(token, 'medium_term', 30),
+          ]);
+          const seen = new Set();
+          result = [...(short.items || []), ...(medium.items || [])]
+            .filter(t => { if (!t?.id || seen.has(t.id)) return false; seen.add(t.id); return true; })
+            .sort(() => Math.random() - 0.5);
+        }
       } else {
         result = await searchTracksByGenre(token, genre, 40);
       }
