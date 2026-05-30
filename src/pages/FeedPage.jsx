@@ -29,6 +29,9 @@ export default function FeedPage() {
   const [dragging, setDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [voted, setVoted] = useState(null); // 'fire' | 'skip' | null
+  const [autoplay, setAutoplay] = useState(false);
+  const [volume, setVolume] = useState(0.7);
+  const autoplayRef = useRef(false);
   const audioRef = useRef(null);
   const dragStartX = useRef(0);
   const cardRef = useRef(null);
@@ -101,7 +104,7 @@ export default function FeedPage() {
     setPreviewLoading(false);
     setPreviewUrl(url || null);
 
-    if (url && hasInteractedRef.current) {
+    if (url && hasInteractedRef.current && autoplayRef.current) {
       playAudio(url);
     }
   };
@@ -109,7 +112,7 @@ export default function FeedPage() {
   const playAudio = (url) => {
     if (!audioRef.current) return;
     audioRef.current.src = url;
-    audioRef.current.volume = 0.7;
+    audioRef.current.volume = autoplayRef.current ? volume : volume;
     audioRef.current.play()
       .then(() => setIsPlaying(true))
       .catch(() => setIsPlaying(false));
@@ -134,6 +137,25 @@ export default function FeedPage() {
     }
   };
 
+  const toggleAutoplay = () => {
+    hasInteractedRef.current = true;
+    const next = !autoplayRef.current;
+    autoplayRef.current = next;
+    setAutoplay(next);
+    if (next && previewUrl && !isPlaying) {
+      playAudio(previewUrl);
+    } else if (!next) {
+      if (audioRef.current) { audioRef.current.pause(); }
+      setIsPlaying(false);
+    }
+  };
+
+  const handleVolumeChange = (e) => {
+    const v = parseFloat(e.target.value);
+    setVolume(v);
+    if (audioRef.current) audioRef.current.volume = v;
+  };
+
   const vote = useCallback(async (v) => {
     hasInteractedRef.current = true;
     if (!tracks[index] || voted) return;
@@ -142,7 +164,7 @@ export default function FeedPage() {
     stopAudio();
 
     if (profile?.id) {
-      await saveVote(profile.id, track, v).catch(() => {});
+      await saveVote(profile.id, track, v, profile).catch(() => {});
     }
 
     setTimeout(() => {
@@ -281,19 +303,42 @@ export default function FeedPage() {
           </div>
 
           {previewLoading ? (
-            <button className="play-btn-lg" disabled style={{ opacity: 0.5 }}>
-              <svg viewBox="0 0 24 24" fill="currentColor" style={{ animation: 'spin .8s linear infinite' }}><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z"/></svg>
-              Loading preview...
-            </button>
+            <div className="player-row">
+              <button className="play-btn-lg" disabled style={{ opacity: 0.5 }}>
+                <svg viewBox="0 0 24 24" fill="currentColor" style={{ animation: 'spin .8s linear infinite' }}><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z"/></svg>
+                Loading…
+              </button>
+            </div>
           ) : previewUrl ? (
-            <button className="play-btn-lg" onClick={togglePlay}>
-              {isPlaying ? (
-                <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              )}
-              {isPlaying ? 'Pause preview' : 'Play 30s preview'}
-            </button>
+            <div className="player-row">
+              <button className="play-btn-lg" onClick={togglePlay}>
+                {isPlaying ? (
+                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                )}
+                {isPlaying ? 'Pause' : 'Play 30s'}
+              </button>
+              <button
+                className={`autoplay-btn ${autoplay ? 'autoplay-on' : ''}`}
+                onClick={toggleAutoplay}
+                title="Toggle autoplay"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14l-5-5h3V8h4v4h3l-5 5z"/></svg>
+                Autoplay
+              </button>
+              <div className="volume-row">
+                <svg className="vol-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                </svg>
+                <input
+                  type="range" min="0" max="1" step="0.05"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  className="volume-slider"
+                />
+              </div>
+            </div>
           ) : (
             <p style={{ fontSize: '0.82rem', color: 'var(--text3)' }}>No preview available for this track</p>
           )}

@@ -517,36 +517,7 @@ img { display: block; }
 .lb-spotify-link svg { width: 18px; height: 18px; fill: var(--green); }
 .lb-empty { text-align: center; color: var(--text3); padding: 48px 0; }
 
-/* ===================== PROFILE ===================== */
-.profile-page { padding-top: 16px; }
-.profile-header {
-  display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: 24px 0 32px;
-}
-.profile-avatar {
-  width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
-  border: 3px solid var(--green); margin-bottom: 16px;
-  box-shadow: 0 0 30px rgba(29,185,84,0.25);
-}
-.profile-avatar-fallback {
-  background: var(--bg3); display: flex; align-items: center; justify-content: center;
-}
-.profile-avatar-fallback svg { width: 48px; height: 48px; fill: var(--text3); }
-.profile-name { font-size: 1.5rem; font-weight: 800; }
-.profile-email { color: var(--text2); font-size: 0.9rem; margin-top: 4px; }
-.profile-followers { color: var(--text3); font-size: 0.85rem; margin-top: 4px; }
-.profile-top-artist {
-  display: flex; align-items: center; gap: 12px; margin-top: 20px;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 14px; padding: 12px 20px;
-}
-.profile-top-artist img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-.profile-top-artist .label { font-size: 0.75rem; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
-.profile-top-artist .value { font-weight: 700; font-size: 0.95rem; }
-
-.profile-section { margin-bottom: 32px; }
-.profile-section h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 14px; }
-
+/* ===================== TRACK LIST (shared) ===================== */
 .track-list { display: flex; flex-direction: column; gap: 6px; }
 .track-item {
   display: flex; align-items: center; gap: 12px;
@@ -563,17 +534,125 @@ img { display: block; }
 .track-artist { color: var(--text2); font-size: 0.78rem; margin-top: 2px; }
 .spotify-mini { width: 16px; height: 16px; fill: var(--green); flex-shrink: 0; }
 
-.profile-footer { padding: 16px 0 32px; display: flex; justify-content: center; }
-.logout-btn {
-  background: transparent; border: 1px solid #ef4444; color: #ef4444;
-  padding: 10px 28px; border-radius: 50px; font-size: 0.9rem; font-weight: 600;
-  transition: background .2s;
-}
-.logout-btn:hover { background: rgba(239,68,68,0.1); }
-
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 520px) {
   .main-content { padding: 72px 16px 32px; }
   .navbar__inner { padding: 0 16px; }
   .nav-link { padding: 8px 10px; font-size: 0.82rem; }
 }
+
+/* ===================== PLAYER ROW (feed) ===================== */
+.player-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.autoplay-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); font-size: 0.82rem; font-weight: 600;
+  padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: all .2s;
+}
+.autoplay-btn:hover { border-color: #444; color: var(--text); }
+.autoplay-btn.autoplay-on { background: rgba(29,185,84,0.15); border-color: var(--green); color: var(--green); }
+.autoplay-btn svg { width: 15px; height: 15px; fill: currentColor; }
+
+.volume-row {
+  display: flex; align-items: center; gap: 8px; margin-left: 4px;
+}
+.vol-icon { width: 16px; height: 16px; fill: var(--text3); flex-shrink: 0; }
+
+.volume-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 90px; height: 4px;
+  background: var(--border); border-radius: 2px; outline: none; cursor: pointer;
+  accent-color: var(--green);
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--green); cursor: pointer;
+}
+.volume-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--green); border: none; cursor: pointer;
+}
+
+/* ===================== LEADERBOARD USER AVATAR ===================== */
+.lb-avatar { border-radius: 50%; }
+.lb-avatar-fallback {
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+}
+.lb-avatar-fallback svg { width: 26px; height: 26px; fill: var(--text3); }
+
+/* ===================== PROFILE DESKTOP LAYOUT ===================== */
+.profile-page { padding-top: 16px; }
+
+.profile-layout {
+  display: flex; flex-direction: column; gap: 24px;
+}
+@media (min-width: 760px) {
+  .profile-layout { flex-direction: row; align-items: flex-start; gap: 32px; }
+  .profile-sidebar { width: 260px; flex-shrink: 0; position: sticky; top: 88px; }
+  .profile-content { flex: 1; min-width: 0; }
+}
+
+.profile-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px 20px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+}
+.profile-avatar {
+  width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--green); margin-bottom: 8px;
+  box-shadow: 0 0 24px rgba(29,185,84,0.2);
+}
+.profile-avatar-fallback {
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+}
+.profile-avatar-fallback svg { width: 44px; height: 44px; fill: var(--text3); }
+.profile-name { font-size: 1.2rem; font-weight: 800; }
+.profile-email { color: var(--text2); font-size: 0.85rem; }
+.profile-followers { color: var(--text3); font-size: 0.8rem; }
+
+.profile-stats-row {
+  display: flex; gap: 16px; margin: 12px 0 4px; width: 100%; justify-content: center;
+}
+.profile-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--bg3); border-radius: 10px; padding: 10px 20px; flex: 1;
+}
+.profile-stat__num { font-size: 1.3rem; font-weight: 900; color: var(--green); }
+.profile-stat__label { font-size: 0.72rem; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+.profile-top-artist {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: var(--bg3); border-radius: 12px; padding: 10px 14px; margin-top: 4px;
+}
+.profile-top-artist img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.profile-top-artist .label { font-size: 0.7rem; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.profile-top-artist .value { font-weight: 700; font-size: 0.88rem; }
+
+.profile-content { display: flex; flex-direction: column; gap: 0; }
+.profile-section { margin-bottom: 24px; }
+
+.section-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; background: none; border: none; cursor: pointer;
+  padding: 12px 0; color: var(--text);
+}
+.section-toggle h2 { font-size: 1rem; font-weight: 800; margin: 0; }
+.section-chevron {
+  width: 20px; height: 20px; fill: var(--text3);
+  transition: transform .2s; flex-shrink: 0;
+}
+.section-chevron.open { transform: rotate(180deg); }
+
+.profile-empty {
+  color: var(--text3); font-size: 0.9rem; padding: 32px 0; text-align: center;
+}
+
+.logout-btn {
+  background: transparent; border: 1px solid #ef4444; color: #ef4444;
+  padding: 9px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600;
+  transition: background .2s; margin-top: 8px; width: 100%;
+}
+.logout-btn:hover { background: rgba(239,68,68,0.1); }
