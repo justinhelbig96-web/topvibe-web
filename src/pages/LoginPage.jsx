@@ -1,4 +1,6 @@
-﻿import React from 'react';
+﻿import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 import { initiateLogin } from '../config/spotify';
 import logo from '../assets/logo.png';
 
@@ -40,6 +42,16 @@ const SpotifyIcon = () => (
 );
 
 export default function LoginPage() {
+  const { token, tokenExpiry } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const valid = !!token && Date.now() < (tokenExpiry || 0);
+    if (valid) {
+      navigate('/feed', { replace: true });
+    }
+  }, [token, tokenExpiry]);
+
   return (
     <div className="sp-page">
 
