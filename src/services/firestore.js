@@ -71,6 +71,12 @@ export const getUserLeaderboard = async (limitCount = 20) => {
 
 // Shared track pool — every user contributes their top tracks
 export const contributeUserTracks = async (userId, tracks) => {
+  const count = tracks.slice(0, 50).length;
+  // Always update trackCount, even if 0
+  await setDoc(doc(db, 'userStats', userId), {
+    trackCount: count,
+  }, { merge: true });
+  if (count === 0) return;
   const ops = tracks.slice(0, 50).map(t => {
     const trackData = {
       id: t.id,
@@ -88,10 +94,6 @@ export const contributeUserTracks = async (userId, tracks) => {
     }, { merge: true });
   });
   await Promise.all(ops);
-  // Update trackCount in userStats
-  await setDoc(doc(db, 'userStats', userId), {
-    trackCount: tracks.slice(0, 50).length,
-  }, { merge: true });
 };
 
 export const getSharedTracks = async (limitCount = 200) => {

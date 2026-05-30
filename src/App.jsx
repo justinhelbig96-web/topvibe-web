@@ -36,17 +36,20 @@ function TrackContributor() {
   useEffect(() => {
     if (!token || !profile?.id) return;
     // Register user in DB on every login (creates entry if not exists)
-    registerUser(profile).catch(() => {});
+    registerUser(profile).catch(e => console.error('registerUser failed:', e));
     // Contribute this user's top tracks to the shared pool
     Promise.all([
       getTopTracks(token, 'short_term', 30),
       getTopTracks(token, 'medium_term', 30),
     ]).then(([short, medium]) => {
+      const shortItems = Array.isArray(short?.items) ? short.items : [];
+      const mediumItems = Array.isArray(medium?.items) ? medium.items : [];
       const seen = new Set();
-      const tracks = [...(short.items || []), ...(medium.items || [])]
+      const tracks = [...shortItems, ...mediumItems]
         .filter(t => { if (!t?.id || seen.has(t.id)) return false; seen.add(t.id); return true; });
+      console.log('TrackContributor: contributing', tracks.length, 'tracks for', profile.id);
       return contributeUserTracks(profile.id, tracks);
-    }).catch(() => {});
+    }).catch(e => console.error('contributeUserTracks failed:', e));
   }, [token, profile?.id]);
   return null;
 }
