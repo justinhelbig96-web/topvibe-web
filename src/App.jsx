@@ -37,10 +37,7 @@ function TrackContributor() {
     if (!token || !profile?.id) return;
     // Register user in DB on every login (creates entry if not exists)
     registerUser(profile).catch(() => {});
-    // Contribute this user's top tracks to the shared pool once per session
-    const key = `contributed_${profile.id}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
+    // Contribute this user's top tracks to the shared pool
     Promise.all([
       getTopTracks(token, 'short_term', 30),
       getTopTracks(token, 'medium_term', 30),
