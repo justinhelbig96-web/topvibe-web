@@ -107,6 +107,17 @@ export const getSharedTracks = async (limitCount = 200) => {
 // ===================== ADMIN =====================
 export const ADMIN_EMAIL = 'justin.helbig96@icloud.com';
 
+export const registerUser = async (userProfile) => {
+  if (!userProfile?.id) return;
+  await setDoc(doc(db, 'userStats', userProfile.id), {
+    userId: userProfile.id,
+    displayName: userProfile.display_name || 'User',
+    avatar: userProfile.images?.[0]?.url || '',
+    email: userProfile.email || '',
+    lastActive: serverTimestamp(),
+  }, { merge: true });
+};
+
 export const getAllUsers = async () => {
   const snap = await getDocs(collection(db, 'userStats'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));

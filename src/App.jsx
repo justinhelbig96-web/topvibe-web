@@ -8,7 +8,7 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import Layout from "./components/Layout";
 import { getTopTracks } from "./services/spotify";
-import { contributeUserTracks, isUserBanned } from "./services/firestore";
+import { contributeUserTracks, isUserBanned, registerUser } from "./services/firestore";
 import "./styles/app.css";
 
 function ProtectedRoute({ children }) {
@@ -35,6 +35,8 @@ function TrackContributor() {
   const { token, profile } = useAuthStore();
   useEffect(() => {
     if (!token || !profile?.id) return;
+    // Register user in DB on every login (creates entry if not exists)
+    registerUser(profile).catch(() => {});
     // Contribute this user's top tracks to the shared pool once per session
     const key = `contributed_${profile.id}`;
     if (sessionStorage.getItem(key)) return;
