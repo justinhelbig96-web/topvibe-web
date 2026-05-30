@@ -33,6 +33,14 @@ export default function FeedPage() {
   const dragStartX = useRef(0);
   const cardRef = useRef(null);
   const hasInteractedRef = useRef(false);
+  const volumeRef = useRef(0.7);
+
+  const handleVolumeChange = (e) => {
+    const v = parseFloat(e.target.value);
+    setVolume(v);
+    volumeRef.current = v;
+    if (audioRef.current) audioRef.current.volume = v;
+  };
 
   useEffect(() => { loadTracks(); }, [genre]);
 
@@ -73,17 +81,17 @@ export default function FeedPage() {
     setStats(s);
   };
 
-  const loadPreview = (track) => {
+  const loadPreview = (track, autoStart = false) => {
     stopAudio();
     const url = track.preview_url || null;
     setPreviewUrl(url);
-    if (url && hasInteractedRef.current) playAudio(url);
+    if (url && (autoStart || hasInteractedRef.current)) playAudio(url);
   };
 
   const playAudio = (url) => {
     if (!audioRef.current) return;
     audioRef.current.src = url;
-    audioRef.current.volume = volume;
+    audioRef.current.volume = volumeRef.current;
     audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
   };
 
@@ -99,20 +107,26 @@ export default function FeedPage() {
     else playAudio(previewUrl);
   };
 
-  const handleVolumeChange = (e) => {
-    const v = parseFloat(e.target.value);
-    setVolume(v);
-    if (audioRef.current) audioRef.current.volume = v;
-  };
-
   const vote = useCallback(async (v) => {
     hasInteractedRef.current = true;
     if (!tracks[index] || voted) return;
     setVoted(v);
     const track = tracks[index];
+    const nextTrack = tracks[index + 1];
     stopAudio();
     if (profile?.id) await saveVote(profile.id, track, v, profile).catch(() => {});
-    setTimeout(() => { setVoted(null); setIndex(i => i + 1); }, 400);
+    setTimeout(() => {
+      setVoted(null);
+      setIndex(i => i + 1);
+      // Start next preview immediately while still in gesture context
+      if (nextTrack?.preview_url) {
+        if (audioRef.current) {
+          audioRef.current.src = nextTrack.preview_url;
+          audioRef.current.volume = volumeRef.current;
+          audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+        }
+      }
+    }, 400);
   }, [tracks, index, voted, profile]);
 
   const onMouseDown = (e) => { setDragging(true); dragStartX.current = e.clientX; };
